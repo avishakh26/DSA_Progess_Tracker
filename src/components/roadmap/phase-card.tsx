@@ -64,7 +64,7 @@ export function PhaseCard({
 
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-2">
-            <span className="text-base font-semibold text-slate-100">
+            <span className="text-base font-semibold text-[var(--foreground)]">
               {data.title}
             </span>
             {data.percent === 100 && (

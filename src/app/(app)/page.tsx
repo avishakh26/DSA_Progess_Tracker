@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { RadialProgress } from "@/components/ui/radial-progress";
 import { ContributionHeatmap } from "@/components/dashboard/heatmap";
 import {
   DailyBarChart,
@@ -71,16 +72,21 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-100">
-          {greeting()}
-          {stats.name ? `, ${stats.name.split(" ")[0]}` : ""} 👋
-        </h1>
-        <p className="mt-1 text-sm text-[var(--muted)]">
-          {stats.streak > 0
-            ? `You're on a ${stats.streak}-day streak — keep it alive.`
-            : "No active streak. Solve one problem today to start a new one."}
-        </p>
+      <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 via-[var(--warning)]/10 to-[var(--primary)]/5" />
+        <div className="absolute inset-0 bg-[var(--surface-raised)]/40 backdrop-blur-3xl" />
+        <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
+        <div className="relative flex flex-col items-start gap-2">
+          <h1 className="text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
+            {greeting()}
+            {stats.name ? `, ${stats.name.split(" ")[0]}` : ""} 👋
+          </h1>
+          <p className="text-sm font-medium text-[var(--muted)] sm:text-base">
+            {stats.streak > 0
+              ? `You're on a ${stats.streak}-day streak — keep it alive.`
+              : "No active streak. Solve one problem today to start a new one."}
+          </p>
+        </div>
       </div>
 
       {/* ── KPI row ─────────────────────────────────────────── */}
@@ -108,7 +114,8 @@ export default async function DashboardPage() {
         />
         <StatCard
           label="Completion"
-          value={`${stats.completion}%`}
+          value={stats.completion}
+          suffix="%"
           sub="of non-skipped topics"
           icon={Percent}
           accent="#9085e9"
@@ -117,14 +124,16 @@ export default async function DashboardPage() {
         </StatCard>
         <StatCard
           label="Current streak"
-          value={`${stats.streak}d`}
+          value={stats.streak}
+          suffix="d"
           sub={stats.streak > 0 ? "keep going" : "start today"}
           icon={Flame}
           accent="#d95926"
         />
         <StatCard
           label="Longest streak"
-          value={`${stats.longestStreak}d`}
+          value={stats.longestStreak}
+          suffix="d"
           sub="personal best"
           icon={Target}
           accent="#d55181"
@@ -156,22 +165,23 @@ export default async function DashboardPage() {
         {/* Today's goal + difficulty split. Difficulty is three labelled tiles
             rather than a pie — the labels carry identity, not the colour. */}
         <div className="flex flex-col gap-4">
-          <Card className="p-5">
-            <CardTitle className="mb-3">Today&apos;s goal</CardTitle>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-semibold text-slate-100 tabular-nums">
+          <Card className="flex flex-col items-center p-5 text-center">
+            <CardTitle className="mb-6 w-full text-left">Today&apos;s goal</CardTitle>
+            <RadialProgress
+              value={stats.solvedToday}
+              max={stats.dailyGoal}
+              size={140}
+              strokeWidth={12}
+              color={goalPct >= 100 ? "var(--success)" : "var(--primary)"}
+            >
+              <span className="text-4xl font-bold text-[var(--foreground)] tabular-nums">
                 {stats.solvedToday}
               </span>
-              <span className="text-sm text-[var(--muted)]">
+              <span className="text-xs text-[var(--muted)]">
                 / {stats.dailyGoal} problems
               </span>
-            </div>
-            <Progress
-              value={goalPct}
-              className="mt-3"
-              color={goalPct >= 100 ? "#199e70" : undefined}
-            />
-            <p className="mt-2 text-xs text-[var(--subtle)]">
+            </RadialProgress>
+            <p className="mt-6 text-sm text-[var(--subtle)]">
               {goalPct >= 100
                 ? "Goal met for today — anything else is a bonus."
                 : `${stats.dailyGoal - stats.solvedToday} to go.`}
@@ -223,7 +233,7 @@ export default async function DashboardPage() {
               <p className="text-xs text-[var(--subtle)]">
                 Phase {nextTopic.phase}
               </p>
-              <p className="mt-1 text-lg font-medium text-slate-100">
+              <p className="mt-1 text-lg font-medium text-[var(--foreground)]">
                 {nextTopic.title}
               </p>
               <p className="mt-1 line-clamp-3 text-sm text-[var(--muted)]">
@@ -294,10 +304,22 @@ export default async function DashboardPage() {
                 <li key={p.id}>
                   <Link
                     href={`/roadmap/${p.topic.slug}`}
-                    className="-mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg px-2 py-2.5 transition-colors hover:bg-white/[0.04]"
+                    className="-mx-2 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl px-3 py-3 transition-colors hover:bg-[var(--surface-raised)]"
                   >
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface)] ring-1 ring-[var(--border)]">
+                      {p.platform === "CODEFORCES" ? (
+                        <div className="flex items-center gap-0.5">
+                          <span className="block size-1.5 rounded-full bg-yellow-500" />
+                          <span className="block size-1.5 rounded-full bg-blue-500" />
+                        </div>
+                      ) : p.platform === "LEETCODE" ? (
+                        <span className="block size-3 rounded-full bg-orange-500" />
+                      ) : (
+                        <CheckCircle2 className="size-4 text-[var(--muted)]" />
+                      )}
+                    </div>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm text-[var(--foreground)]">
+                      <span className="block truncate text-sm font-medium text-[var(--foreground)]">
                         {p.title}
                       </span>
                       <span className="block truncate text-xs text-[var(--subtle)]">

@@ -18,7 +18,7 @@ function TooltipContent({
       <TooltipPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          "glass z-50 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 shadow-xl",
+          "glass z-50 rounded-lg px-2.5 py-1.5 text-xs text-[var(--foreground)] shadow-xl",
           "data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in",
           className,
         )}

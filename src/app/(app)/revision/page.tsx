@@ -66,7 +66,7 @@ export default async function RevisionPage() {
       ) : (
         <div className="flex flex-col gap-6">
           <p className="text-sm text-[var(--muted)]">
-            <span className="font-semibold text-slate-100 tabular-nums">
+            <span className="font-semibold text-[var(--foreground)] tabular-nums">
               {problems.length}
             </span>{" "}
             problems across {phases.length} phase{phases.length === 1 ? "" : "s"}.
@@ -77,7 +77,7 @@ export default async function RevisionPage() {
             const rows = groups.get(phase)!;
             return (
               <section key={phase}>
-                <h2 className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-100">
+                <h2 className="mb-2 flex items-center gap-2 text-sm font-medium text-[var(--foreground)]">
                   <span
                     className="size-2.5 rounded-full"
                     style={{ background: meta.accent }}

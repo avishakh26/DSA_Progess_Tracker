@@ -26,6 +26,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { GlobalSearch } from "@/components/search/global-search";
 
 export type ShellCounts = { revision: number; favorites: number };
@@ -41,18 +47,16 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = usePersistedFlag("dsa:sidebar-collapsed");
+  const [isHovered, setIsHovered] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  // Close the mobile drawer whenever the route changes. Derived-during-render
-  // rather than an effect, so it lands in the same commit as the navigation.
   const [drawerRoute, setDrawerRoute] = useState(pathname);
   if (drawerRoute !== pathname) {
     setDrawerRoute(pathname);
     if (mobileOpen) setMobileOpen(false);
   }
 
-  // ⌘K / Ctrl+K opens global search from anywhere.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -64,24 +68,29 @@ export function AppShell({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Sidebar width drives both the aside and the main column's left padding.
-  // Kept in CSS (not a motion `animate`) so the breakpoint rule lives in the
-  // stylesheet — the main column must never sit under the fixed sidebar, even
-  // before hydration.
-  const width = collapsed ? 76 : 256;
+  // When collapsed, the layout reserves 76px of padding.
+  // When expanded, the layout reserves 256px of padding.
+  const paddingWidth = collapsed ? 76 : 256;
+  
+  // The sidebar itself is 256px if expanded OR if hovered while collapsed.
+  // It shrinks to 76px only when collapsed and NOT hovered.
+  const isSidebarExpanded = !collapsed || isHovered;
+  const sidebarWidth = isSidebarExpanded ? 256 : 76;
 
   return (
     <div
       className="flex min-h-dvh"
-      style={{ "--sidebar-w": `${width}px` } as React.CSSProperties}
+      style={{ "--sidebar-w": `${paddingWidth}px` } as React.CSSProperties}
     >
       {/* ── Sidebar (desktop) ─────────────────────────────── */}
       <aside
-        style={{ width }}
-        className="fixed inset-y-0 left-0 z-40 hidden shrink-0 flex-col border-r border-[var(--border)] bg-slate-950/50 backdrop-blur-xl transition-[width] duration-300 ease-out lg:flex"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{ width: sidebarWidth }}
+        className="fixed inset-y-0 left-0 z-40 hidden shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface-raised)]/50 backdrop-blur-xl transition-[width] duration-300 ease-out lg:flex overflow-hidden"
       >
         <SidebarBody
-          collapsed={collapsed}
+          collapsed={!isSidebarExpanded}
           pathname={pathname}
           counts={counts}
           onToggle={() => setCollapsed(!collapsed)}
@@ -97,14 +106,14 @@ export function AppShell({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-40 bg-[var(--surface-raised)]/70 backdrop-blur-sm lg:hidden"
             />
             <motion.aside
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: "spring", stiffness: 380, damping: 38 }}
-              className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-[var(--border)] bg-slate-950/95 backdrop-blur-xl lg:hidden"
+              className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-[var(--border)] bg-[var(--surface-raised)]/95 backdrop-blur-xl lg:hidden"
             >
               <SidebarBody
                 collapsed={false}
@@ -120,7 +129,7 @@ export function AppShell({
 
       {/* ── Main column ───────────────────────────────────── */}
       <div className="flex min-h-dvh min-w-0 flex-1 flex-col transition-[padding] duration-300 ease-out lg:pl-[var(--sidebar-w)]">
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[var(--border)] bg-slate-950/60 px-4 backdrop-blur-xl sm:px-6">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface-raised)]/60 px-4 backdrop-blur-xl sm:px-6">
           <Button
             variant="ghost"
             size="icon"
@@ -133,7 +142,7 @@ export function AppShell({
 
           <button
             onClick={() => setSearchOpen(true)}
-            className="flex h-9 flex-1 items-center gap-2 rounded-lg border border-[var(--border)] bg-slate-950/40 px-3 text-sm text-[var(--subtle)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--muted)] sm:max-w-md"
+            className="flex h-9 flex-1 items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface-raised)]/40 px-3 text-sm text-[var(--subtle)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--muted)] sm:max-w-md"
           >
             <Search className="size-4 shrink-0" />
             <span className="truncate">Search topics, problems, tags…</span>
@@ -240,7 +249,7 @@ function SidebarBody({
             <Code2 className="size-4 text-white" />
           </span>
           {!collapsed && (
-            <span className="truncate text-[0.95rem] font-semibold tracking-tight text-slate-100">
+            <span className="truncate text-[0.95rem] font-semibold tracking-tight text-[var(--foreground)]">
               DSA Journey
             </span>
           )}
@@ -253,41 +262,62 @@ function SidebarBody({
       </div>
 
       <nav className="no-scrollbar flex flex-1 flex-col gap-0.5 overflow-y-auto p-2.5">
-        {NAV_ITEMS.map((item) => {
-          const active =
-            item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-          const count = item.countKey ? counts[item.countKey] : 0;
+        <TooltipProvider delayDuration={50}>
+          {NAV_ITEMS.map((item) => {
+            const active =
+              item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            const count = item.countKey ? counts[item.countKey] : 0;
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              title={collapsed ? item.label : undefined}
-              className={cn(
-                "group relative flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
-                collapsed && "justify-center px-0",
-                active
-                  ? "bg-[var(--primary-soft)] text-blue-300"
-                  : "text-[var(--muted)] hover:bg-white/[0.06] hover:text-[var(--foreground)]",
-              )}
-            >
-              {active && (
-                <motion.span
-                  layoutId="nav-active"
-                  className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-[var(--primary)]"
-                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                />
-              )}
-              <item.icon className="size-4 shrink-0" />
-              {!collapsed && <span className="truncate">{item.label}</span>}
-              {!collapsed && count > 0 && (
-                <span className="ml-auto rounded-md bg-white/[0.08] px-1.5 py-0.5 text-[0.7rem] text-[var(--muted)]">
-                  {count}
-                </span>
-              )}
-            </Link>
-          );
-        })}
+            const linkContent = (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "group relative flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
+                  collapsed && "justify-center px-0",
+                  active
+                    ? "bg-[var(--primary-soft)] text-[var(--primary)]"
+                    : "text-[var(--muted)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)]",
+                )}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="nav-active"
+                    className="absolute inset-y-1 left-0 w-1 rounded-r-md bg-[var(--primary)]"
+                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                  />
+                )}
+                <item.icon className="size-4 shrink-0" />
+                {!collapsed && <span className="truncate">{item.label}</span>}
+                {!collapsed && count > 0 && (
+                  <span className="ml-auto rounded-md bg-white/[0.08] px-1.5 py-0.5 text-[0.7rem] text-[var(--muted)]">
+                    {count}
+                  </span>
+                )}
+              </Link>
+            );
+
+            if (collapsed) {
+              return (
+                <Tooltip key={item.href}>
+                  <TooltipTrigger asChild>
+                    {linkContent}
+                  </TooltipTrigger>
+                  <TooltipContent side="right" sideOffset={12} className="flex items-center gap-2">
+                    {item.label}
+                    {count > 0 && (
+                      <span className="rounded bg-[var(--muted)]/20 px-1.5 py-0.5 text-[0.6rem] font-semibold text-[var(--foreground)]">
+                        {count}
+                      </span>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              );
+            }
+
+            return linkContent;
+          })}
+        </TooltipProvider>
       </nav>
 
       {collapsed && (

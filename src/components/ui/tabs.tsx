@@ -13,7 +13,7 @@ function TabsList({
   return (
     <TabsPrimitive.List
       className={cn(
-        "inline-flex items-center gap-1 rounded-lg border border-[var(--border)] bg-slate-950/40 p-1",
+        "inline-flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--surface-raised)]/40 p-1",
         className,
       )}
       {...props}

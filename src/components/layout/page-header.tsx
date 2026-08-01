@@ -27,7 +27,7 @@ export function PageHeader({
           </span>
         )}
         <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-100">
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)]">
             {title}
           </h1>
           {description && (

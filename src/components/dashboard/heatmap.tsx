@@ -80,7 +80,7 @@ export function ContributionHeatmap({
     <div className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-sm text-[var(--muted)]">
-          <span className="font-semibold text-slate-100 tabular-nums">{total}</span>{" "}
+          <span className="font-semibold text-[var(--foreground)] tabular-nums">{total}</span>{" "}
           problems in the last year
         </p>
       </div>

@@ -77,7 +77,7 @@ export default async function TopicPage({
               )}
             </div>
 
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-100">
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--foreground)]">
               {topic.title}
             </h1>
             {topic.description && (

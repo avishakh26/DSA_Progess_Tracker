@@ -13,7 +13,7 @@ export default function LoginPage() {
 
   return (
     <Card className="w-full max-w-sm p-6">
-      <h1 className="text-xl font-semibold text-slate-100">Welcome back</h1>
+      <h1 className="text-xl font-semibold text-[var(--foreground)]">Welcome back</h1>
       <p className="mt-1 text-sm text-[var(--muted)]">
         Sign in to pick up where you left off.
       </p>

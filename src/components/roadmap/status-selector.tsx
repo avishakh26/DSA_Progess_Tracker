@@ -25,7 +25,7 @@ export function StatusSelector({
   return (
     <div
       className={cn(
-        "inline-flex shrink-0 items-center gap-0.5 rounded-lg border border-[var(--border)] bg-slate-950/40 p-0.5",
+        "inline-flex shrink-0 items-center gap-0.5 rounded-lg border border-[var(--border)] bg-[var(--surface-raised)]/40 p-0.5",
         pending && "opacity-60",
       )}
     >
@@ -51,7 +51,7 @@ export function StatusSelector({
               "flex items-center gap-1.5 rounded-md font-medium transition-colors",
               size === "sm" ? "px-2 py-1 text-xs" : "px-2.5 py-1.5 text-sm",
               active
-                ? "text-slate-100"
+                ? "text-[var(--foreground)]"
                 : "text-[var(--subtle)] hover:bg-white/[0.06] hover:text-[var(--muted)]",
             )}
             style={

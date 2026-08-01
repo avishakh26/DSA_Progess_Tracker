@@ -61,7 +61,7 @@ export default async function GoalsPage() {
       <Card className="mb-6 p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <p className="text-sm text-[var(--muted)]">Six-month plan</p>
-          <p className="text-sm text-slate-100 tabular-nums">
+          <p className="text-sm text-[var(--foreground)] tabular-nums">
             <span className="text-lg font-semibold">{completed}</span>
             <span className="text-[var(--muted)]"> / {rows.length} months complete</span>
           </p>

@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const fieldStyles =
-  "w-full rounded-lg border border-[var(--border)] bg-slate-950/40 px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--subtle)] transition-colors hover:border-[var(--border-strong)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25 disabled:cursor-not-allowed disabled:opacity-50";
+  "w-full rounded-lg border border-[var(--border)] bg-[var(--surface-raised)]/40 px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--subtle)] transition-colors hover:border-[var(--border-strong)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25 disabled:cursor-not-allowed disabled:opacity-50";
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
@@ -22,7 +22,7 @@ function Select({ className, children, ...props }: React.ComponentProps<"select"
       className={cn(
         fieldStyles,
         "h-9 appearance-none bg-[length:1rem] bg-[right_0.6rem_center] bg-no-repeat pr-8",
-        "[&>option]:bg-slate-900 [&>option]:text-slate-100",
+        "[&>option]:bg-[var(--surface)] [&>option]:text-[var(--foreground)]",
         className,
       )}
       style={{

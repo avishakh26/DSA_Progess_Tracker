@@ -61,7 +61,7 @@ export default async function RoadmapPage() {
       <Card className="mb-6 p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <p className="text-sm text-[var(--muted)]">Overall roadmap progress</p>
-          <p className="text-sm text-slate-100 tabular-nums">
+          <p className="text-sm text-[var(--foreground)] tabular-nums">
             <span className="text-lg font-semibold">{totalDone}</span>
             <span className="text-[var(--muted)]"> / {totalTopics} topics</span>
           </p>

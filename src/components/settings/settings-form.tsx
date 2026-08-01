@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { AlertTriangle, Loader2, RotateCcw, Save, ExternalLink } from "lucide-react";
+import { useState, useTransition, useEffect } from "react";
+import { AlertTriangle, Loader2, RotateCcw, Save, ExternalLink, Moon, Sun, Monitor } from "lucide-react";
+import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { resetProgress, updateProfile } from "@/actions/settings";
 import { Button } from "@/components/ui/button";
@@ -217,6 +218,57 @@ export function SettingsForm({
   );
 }
 
+export function ThemeSettings() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
+
+  return (
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Appearance</CardTitle>
+          <p className="text-sm text-[var(--muted)]">
+            Customize the look and feel of your journey.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <Button variant="outline" onClick={() => setOpen(true)}>
+            {theme === "light" ? <Sun className="mr-2" /> : theme === "dark" ? <Moon className="mr-2" /> : <Monitor className="mr-2" />}
+            Change Theme
+          </Button>
+        </CardContent>
+      </Card>
+      
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Select Theme</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-3 gap-4 py-4">
+            <button onClick={() => { setTheme("light"); setOpen(false); }} className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors hover:bg-[var(--surface-raised)] ${theme === 'light' ? 'border-[var(--warning)] text-[var(--warning)]' : 'border-[var(--border)] text-[var(--muted)]'}`}>
+              <Sun className="size-6" />
+              <span className="text-sm font-medium">Day</span>
+            </button>
+            <button onClick={() => { setTheme("dark"); setOpen(false); }} className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors hover:bg-[var(--surface-raised)] ${theme === 'dark' ? 'border-[var(--primary)] text-[var(--primary)]' : 'border-[var(--border)] text-[var(--muted)]'}`}>
+              <Moon className="size-6" />
+              <span className="text-sm font-medium">Dark</span>
+            </button>
+            <button onClick={() => { setTheme("system"); setOpen(false); }} className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors hover:bg-[var(--surface-raised)] ${theme === 'system' ? 'border-[var(--primary)] text-[var(--primary)]' : 'border-[var(--border)] text-[var(--muted)]'}`}>
+              <Monitor className="size-6" />
+              <span className="text-sm font-medium">System</span>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 export function SettingsDangerZone() {
   const [pending, startTransition] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -225,22 +277,20 @@ export function SettingsDangerZone() {
   return (
     <>
       <Card className="border-[var(--danger)]/25">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-rose-300">
-            <AlertTriangle className="size-4" />
-            Danger zone
-          </CardTitle>
-          <p className="text-sm text-[var(--muted)]">
-            Resetting deletes every problem and activity record and clears all
-            topic, goal and rating progress. The 14-phase curriculum itself stays.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <Button variant="danger" onClick={() => setConfirmOpen(true)}>
-            <RotateCcw />
-            Reset all progress
+        <div className="flex items-center justify-between p-4 sm:p-6">
+          <div className="flex flex-col gap-1 pr-4">
+            <h3 className="flex items-center gap-2 font-semibold text-rose-500">
+              <AlertTriangle className="size-4" />
+              Danger zone
+            </h3>
+            <p className="text-xs text-[var(--muted)]">
+              Wipes all problem and topic progress.
+            </p>
+          </div>
+          <Button variant="danger" size="sm" onClick={() => setConfirmOpen(true)}>
+            <RotateCcw className="size-4" />
           </Button>
-        </CardContent>
+        </div>
       </Card>
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>

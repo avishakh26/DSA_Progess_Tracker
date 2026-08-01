@@ -47,7 +47,7 @@ export default async function RatingPage() {
               </p>
             )}
           </div>
-          <p className="text-sm text-slate-100 tabular-nums">
+          <p className="text-sm text-[var(--foreground)] tabular-nums">
             <span className="text-lg font-semibold">{cleared.length}</span>
             <span className="text-[var(--muted)]"> / {nodes.length} bands</span>
           </p>

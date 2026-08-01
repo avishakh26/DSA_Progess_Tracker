@@ -13,7 +13,7 @@ export default function SignupPage() {
 
   return (
     <Card className="w-full max-w-sm p-6">
-      <h1 className="text-xl font-semibold text-slate-100">Start your journey</h1>
+      <h1 className="text-xl font-semibold text-[var(--foreground)]">Start your journey</h1>
       <p className="mt-1 text-sm text-[var(--muted)]">
         We&apos;ll set up all 14 phases for you.
       </p>

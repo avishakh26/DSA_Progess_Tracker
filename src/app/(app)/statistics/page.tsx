@@ -189,7 +189,7 @@ export default async function StatisticsPage() {
                   className="flex items-center justify-between text-sm"
                 >
                   <span className="text-[var(--muted)]">{row.label}</span>
-                  <span className="text-slate-100 tabular-nums">{row.value}</span>
+                  <span className="text-[var(--foreground)] tabular-nums">{row.value}</span>
                 </li>
               ))}
             </ul>

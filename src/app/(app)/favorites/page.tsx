@@ -69,7 +69,7 @@ export default async function FavoritesPage() {
         <div className="flex flex-col gap-8">
           {topics.length > 0 && (
             <section>
-              <h2 className="mb-3 text-sm font-medium text-slate-100">
+              <h2 className="mb-3 text-sm font-medium text-[var(--foreground)]">
                 Topics{" "}
                 <span className="text-[var(--subtle)] tabular-nums">
                   ({topics.length})
@@ -116,7 +116,7 @@ export default async function FavoritesPage() {
 
           {problemRows.length > 0 && (
             <section>
-              <h2 className="mb-3 text-sm font-medium text-slate-100">
+              <h2 className="mb-3 text-sm font-medium text-[var(--foreground)]">
                 Problems{" "}
                 <span className="text-[var(--subtle)] tabular-nums">
                   ({problemRows.length})

@@ -20,7 +20,7 @@ function DialogContent({
           until the exit animation ends, and that animation is frozen in a
           background tab — without this the invisible overlay can outlive the
           dialog and swallow every click on the page. */}
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm data-[state=closed]:pointer-events-none data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=open]:animate-in data-[state=open]:fade-in" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[var(--surface-raised)]/70 backdrop-blur-sm data-[state=closed]:pointer-events-none data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=open]:animate-in data-[state=open]:fade-in" />
       <DialogPrimitive.Content
         className={cn(
           "glass fixed top-1/2 left-1/2 z-50 flex max-h-[88vh] w-[min(92vw,42rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-[var(--radius)] shadow-2xl outline-none",
@@ -58,7 +58,7 @@ function DialogTitle({
 }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn("text-lg font-semibold text-slate-100", className)}
+      className={cn("text-lg font-semibold text-[var(--foreground)]", className)}
       {...props}
     />
   );

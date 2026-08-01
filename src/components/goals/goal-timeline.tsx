@@ -69,7 +69,7 @@ function GoalItem({ goal, index }: { goal: GoalRow; index: number }) {
           "relative z-10 mt-1 grid size-10 shrink-0 place-items-center rounded-full border-2 text-sm font-semibold transition-colors",
           goal.completed
             ? "border-emerald-500 bg-emerald-500 text-slate-950"
-            : "border-[var(--border-strong)] bg-slate-950 text-[var(--muted)] hover:border-[var(--primary)] hover:text-blue-300",
+            : "border-[var(--border-strong)] bg-[var(--surface-raised)] text-[var(--muted)] hover:border-[var(--primary)] hover:text-blue-300",
         )}
       >
         {pending ? (
@@ -87,7 +87,7 @@ function GoalItem({ goal, index }: { goal: GoalRow; index: number }) {
             <p className="text-xs tracking-wide text-[var(--subtle)] uppercase">
               Month {goal.month}
             </p>
-            <h3 className="mt-0.5 text-base font-semibold text-slate-100">
+            <h3 className="mt-0.5 text-base font-semibold text-[var(--foreground)]">
               {goal.title}
             </h3>
             <p className="text-sm text-blue-300">{goal.focus}</p>

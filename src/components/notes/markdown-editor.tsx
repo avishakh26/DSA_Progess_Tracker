@@ -123,7 +123,7 @@ export function MarkdownEditor({
 
       <TabsContent value="preview">
         <div
-          className="rounded-lg border border-[var(--border)] bg-slate-950/30 p-4"
+          className="rounded-lg border border-[var(--border)] bg-[var(--surface-raised)]/30 p-4"
           style={{ minHeight }}
         >
           {value.trim() ? (

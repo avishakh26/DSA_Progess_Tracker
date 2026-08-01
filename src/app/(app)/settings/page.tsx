@@ -3,7 +3,7 @@ import { requireUserId } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getDashboardStats } from "@/lib/queries";
 import { PageHeader } from "@/components/layout/page-header";
-import { SettingsForm, SettingsDangerZone } from "@/components/settings/settings-form";
+import { SettingsForm, SettingsDangerZone, ThemeSettings } from "@/components/settings/settings-form";
 import { ProgressPieChart } from "@/components/settings/progress-pie-chart";
 
 export const metadata = { title: "Settings — DSA Journey" };
@@ -47,6 +47,7 @@ export default async function SettingsPage() {
         />
 
         <div className="flex flex-col gap-6">
+          <ThemeSettings />
           <ProgressPieChart stats={stats} />
           <SettingsDangerZone />
         </div>

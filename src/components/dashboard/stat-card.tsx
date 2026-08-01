@@ -1,9 +1,11 @@
 import { Card } from "@/components/ui/card";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { cn } from "@/lib/utils";
 
 export function StatCard({
   label,
   value,
+  suffix,
   sub,
   icon: Icon,
   accent = "#3b82f6",
@@ -11,7 +13,8 @@ export function StatCard({
   children,
 }: {
   label: string;
-  value: React.ReactNode;
+  value: number | string;
+  suffix?: string;
   sub?: React.ReactNode;
   icon?: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   accent?: string;
@@ -19,7 +22,15 @@ export function StatCard({
   children?: React.ReactNode;
 }) {
   return (
-    <Card hover className={cn("relative overflow-hidden p-4", className)}>
+    <Card
+      hover
+      className={cn(
+        "group relative overflow-hidden p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg",
+        className
+      )}
+      style={{ "--accent": accent } as React.CSSProperties}
+    >
+      <div className="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100 ring-1 ring-inset ring-[var(--accent)] pointer-events-none" />
       {/* Accent wash in the top-right corner */}
       <span
         aria-hidden
@@ -36,8 +47,12 @@ export function StatCard({
         )}
       </div>
 
-      <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-100 tabular-nums">
-        {value}
+      <p className="mt-2 text-2xl font-semibold tracking-tight text-[var(--foreground)] tabular-nums">
+        {typeof value === "number" ? (
+          <AnimatedNumber value={value} suffix={suffix} />
+        ) : (
+          value
+        )}
       </p>
 
       {sub && <p className="mt-0.5 text-xs text-[var(--subtle)]">{sub}</p>}

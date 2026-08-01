@@ -36,25 +36,25 @@ export const DIFFICULTY_RAMP: Record<string, string> = {
 
 /** Heatmap levels 1–4 (level 0 is the near-surface empty cell). */
 export const HEATMAP_RAMP = ["#1c5cab", "#2a78d6", "#5598e7", "#9ec5f4"] as const;
-export const HEATMAP_EMPTY = "rgba(148, 163, 184, 0.09)";
+export const HEATMAP_EMPTY = "var(--border)";
 
 /** Chart chrome. */
-export const AXIS = "#94a3b8";
-export const GRID = "rgba(148, 163, 184, 0.12)";
-export const SURFACE = "#131c31";
+export const AXIS = "var(--subtle)";
+export const GRID = "var(--border)";
+export const SURFACE = "var(--surface)";
 
 /** Shared Recharts tooltip styling. */
 export const tooltipStyle = {
   contentStyle: {
-    background: "rgba(15, 23, 42, 0.94)",
+    background: "var(--glass-bg)",
     backdropFilter: "blur(12px)",
-    border: "1px solid rgba(148, 163, 184, 0.2)",
+    border: "1px solid var(--glass-border)",
     borderRadius: "0.75rem",
     fontSize: "0.8125rem",
-    color: "#e2e8f0",
-    boxShadow: "0 12px 40px -12px rgba(0,0,0,0.8)",
+    color: "var(--foreground)",
+    boxShadow: "0 12px 40px -12px rgba(0,0,0,0.3)",
   },
-  labelStyle: { color: "#f1f5f9", fontWeight: 600, marginBottom: 4 },
-  itemStyle: { color: "#cbd5e1" },
-  cursor: { fill: "rgba(148, 163, 184, 0.07)" },
+  labelStyle: { color: "var(--foreground)", fontWeight: 600, marginBottom: 4 },
+  itemStyle: { color: "var(--foreground)" },
+  cursor: { fill: "var(--primary-soft)" },
 } as const;

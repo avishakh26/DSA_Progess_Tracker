@@ -6,7 +6,49 @@
    ───────────────────────────────────────────────────────────── */
 
 :root {
-  /* Core surfaces */
+  /* LIGHT THEME VARIABLES - "Day" Mode (White, Purple, Yellow) */
+  --background: #ffffff;
+  --surface: #f8fafc;
+  --surface-raised: #f1f5f9;
+  --foreground: #0f172a; 
+  --muted: #64748b; 
+  --subtle: #94a3b8; 
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(15, 23, 42, 0.22);
+
+  /* Brand */
+  --primary: #8b5cf6; /* violet-500 */
+  --primary-hover: #7c3aed; /* violet-600 */
+  --primary-soft: rgba(139, 92, 246, 0.15);
+
+  /* Semantic */
+  --success: #10b981; 
+  --success-soft: rgba(16, 185, 129, 0.14);
+  --warning: #eab308; /* yellow-500 */
+  --warning-soft: rgba(234, 179, 8, 0.14);
+  --danger: #ef4444; 
+  --danger-soft: rgba(239, 68, 68, 0.14);
+
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(15, 23, 42, 0.12);
+  --glass-highlight: rgba(255, 255, 255, 0.8);
+
+  --radius: 0.875rem;
+
+  /* Ambient aurora glow behind everything - Light */
+  --aurora-1: rgba(139, 92, 246, 0.12); /* purple */
+  --aurora-2: rgba(234, 179, 8, 0.22); /* yellow - bumped up for more presence */
+  --aurora-3: rgba(139, 92, 246, 0.05); /* purple */
+
+  /* Text gradient - Light */
+  --grad-start: #4c1d95;
+  --grad-mid: #8b5cf6;
+  --grad-end: #eab308;
+}
+
+.dark {
+  /* DARK THEME VARIABLES - The Original Theme */
   --background: #0f172a; /* slate-900 */
   --surface: #131c31;
   --surface-raised: #18223b;
@@ -22,11 +64,11 @@
   --primary-soft: rgba(59, 130, 246, 0.14);
 
   /* Semantic */
-  --success: #10b981; /* emerald-500 */
+  --success: #10b981; 
   --success-soft: rgba(16, 185, 129, 0.14);
-  --warning: #f59e0b; /* amber-500 */
+  --warning: #f59e0b; 
   --warning-soft: rgba(245, 158, 11, 0.14);
-  --danger: #f43f5e; /* rose-500 */
+  --danger: #f43f5e; 
   --danger-soft: rgba(244, 63, 94, 0.14);
 
   /* Glass */
@@ -34,7 +76,15 @@
   --glass-border: rgba(148, 163, 184, 0.16);
   --glass-highlight: rgba(255, 255, 255, 0.05);
 
-  --radius: 0.875rem;
+  /* Ambient aurora glow behind everything - Dark */
+  --aurora-1: rgba(59, 130, 246, 0.16);
+  --aurora-2: rgba(139, 92, 246, 0.12);
+  --aurora-3: rgba(16, 185, 129, 0.07);
+
+  /* Text gradient - Dark */
+  --grad-start: #e2e8f0;
+  --grad-mid: #93c5fd;
+  --grad-end: #a78bfa;
 }
 
 @theme inline {
@@ -45,6 +95,7 @@
   --color-muted: var(--muted);
   --color-subtle: var(--subtle);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-success: var(--success);
@@ -62,7 +113,7 @@
 }
 
 html {
-  color-scheme: dark;
+  /* color-scheme is managed by next-themes natively or through .dark class */
 }
 
 body {
@@ -73,17 +124,17 @@ body {
   background-image:
     radial-gradient(
       ellipse 80% 50% at 15% -10%,
-      rgba(59, 130, 246, 0.16),
+      var(--aurora-1),
       transparent
     ),
     radial-gradient(
       ellipse 60% 45% at 90% 0%,
-      rgba(139, 92, 246, 0.12),
+      var(--aurora-2),
       transparent
     ),
     radial-gradient(
       ellipse 70% 50% at 50% 110%,
-      rgba(16, 185, 129, 0.07),
+      var(--aurora-3),
       transparent
     );
   background-attachment: fixed;
@@ -98,6 +149,12 @@ body {
   border: 1px solid var(--glass-border);
   box-shadow:
     0 1px 0 0 var(--glass-highlight) inset,
+    0 8px 32px -12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .glass {
+  box-shadow:
+    0 1px 0 0 var(--glass-highlight) inset,
     0 8px 32px -12px rgba(0, 0, 0, 0.6);
 }
 
@@ -109,7 +166,14 @@ body {
 }
 
 .glass-hover:hover {
-  border-color: var(--border-strong);
+  border-color: var(--warning);
+  box-shadow:
+    0 1px 0 0 var(--glass-highlight) inset,
+    0 12px 40px -12px rgba(234, 179, 8, 0.18),
+    0 0 0 1px var(--warning-soft);
+}
+
+.dark .glass-hover:hover {
   box-shadow:
     0 1px 0 0 var(--glass-highlight) inset,
     0 12px 40px -12px rgba(0, 0, 0, 0.7),
@@ -142,14 +206,18 @@ body {
 /* ── Focus ─────────────────────────────────────────────────── */
 
 :focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--warning);
   outline-offset: 2px;
+}
+
+.dark :focus-visible {
+  outline: 2px solid var(--primary);
 }
 
 /* ── Utilities ─────────────────────────────────────────────── */
 
 .text-gradient {
-  background: linear-gradient(120deg, #e2e8f0 10%, #93c5fd 55%, #a78bfa 100%);
+  background: linear-gradient(120deg, var(--grad-start) 10%, var(--grad-mid) 55%, var(--grad-end) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
