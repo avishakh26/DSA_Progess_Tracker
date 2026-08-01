@@ -16,7 +16,7 @@ export default async function AppLayout({
   const [user, revision, favTopics, favProblems] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
-      select: { name: true, email: true },
+      select: { name: true, email: true, image: true },
     }),
     prisma.problem.count({ where: { userId, status: "REVISION" } }),
     prisma.topic.count({ where: { userId, favorite: true } }),

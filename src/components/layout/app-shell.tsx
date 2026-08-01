@@ -36,7 +36,7 @@ export function AppShell({
   counts,
 }: {
   children: React.ReactNode;
-  user: { name: string | null; email: string };
+  user: { name: string | null; email: string; image?: string | null };
   counts: ShellCounts;
 }) {
   const pathname = usePathname();
@@ -146,9 +146,18 @@ export function AppShell({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition-colors hover:bg-white/[0.06]">
-                  <span className="grid size-7 place-items-center rounded-full bg-gradient-to-br from-blue-500 to-violet-500 text-xs font-semibold text-white">
-                    {(user.name ?? user.email)[0]?.toUpperCase()}
-                  </span>
+                  {user.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={user.image}
+                      alt={user.name || user.email}
+                      className="size-7 rounded-full object-cover shadow-sm"
+                    />
+                  ) : (
+                    <span className="grid size-7 place-items-center rounded-full bg-gradient-to-br from-blue-500 to-violet-500 text-xs font-semibold text-white">
+                      {(user.name ?? user.email)[0]?.toUpperCase()}
+                    </span>
+                  )}
                   <span className="hidden max-w-32 truncate text-sm text-[var(--muted)] sm:block">
                     {user.name ?? user.email}
                   </span>

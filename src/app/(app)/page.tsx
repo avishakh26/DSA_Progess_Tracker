@@ -135,6 +135,7 @@ export default async function DashboardPage() {
       <Card className="p-5">
         <CardTitle className="mb-4">Contribution heatmap</CardTitle>
         <ContributionHeatmap
+          todayIso={new Date().toISOString()}
           activities={stats.activities.map((a) => ({
             date: a.date.toISOString(),
             count: a.count,

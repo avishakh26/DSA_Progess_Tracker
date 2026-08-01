@@ -9,6 +9,7 @@ export async function updateProfile(input: {
   dailyGoal: number;
   handleCf: string;
   handleLc: string;
+  image?: string | null;
 }) {
   const userId = await requireUserId();
 
@@ -19,6 +20,7 @@ export async function updateProfile(input: {
       dailyGoal: Math.max(1, Math.min(50, Math.round(input.dailyGoal) || 1)),
       handleCf: input.handleCf.trim() || null,
       handleLc: input.handleLc.trim() || null,
+      ...(input.image !== undefined && { image: input.image }),
     },
   });
   revalidatePath("/", "layout");

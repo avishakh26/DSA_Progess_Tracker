@@ -24,8 +24,10 @@ function utcDay(d: Date) {
 
 export function ContributionHeatmap({
   activities,
+  todayIso,
 }: {
   activities: { date: string; count: number }[];
+  todayIso?: string;
 }) {
   const { weeks, monthLabels, total } = useMemo(() => {
     const byDay = new Map(
@@ -33,7 +35,7 @@ export function ContributionHeatmap({
     );
 
     // End on today, start on the Sunday 52 weeks earlier so columns line up.
-    const today = utcDay(new Date());
+    const today = utcDay(todayIso ? new Date(todayIso) : new Date());
     const end = today.getTime() + (6 - today.getUTCDay()) * DAY_MS;
     const start = end - (WEEKS * 7 - 1) * DAY_MS;
 
@@ -84,43 +86,46 @@ export function ContributionHeatmap({
       </div>
 
       <div className="no-scrollbar overflow-x-auto pb-1">
-        <div className="min-w-max">
+        <div className="min-w-[600px] w-full flex flex-col">
           {/* Month ruler */}
-          <div className="relative mb-1 ml-8 h-4">
-            {monthLabels.map((m) => (
-              <span
-                key={`${m.week}-${m.label}`}
-                className="absolute text-[0.65rem] text-[var(--subtle)]"
-                style={{ left: `${m.week * 14}px` }}
-              >
-                {m.label}
-              </span>
-            ))}
+          <div className="grid w-full grid-cols-[min-content_repeat(53,1fr)] gap-[2px] sm:gap-[3px] mb-1">
+            <div className="w-7 mr-1" />
+            {weeks.map((_, w) => {
+              const label = monthLabels.find((m) => m.week === w);
+              return (
+                <div key={w} className="relative h-4">
+                  {label && (
+                    <span className="absolute left-0 text-[0.65rem] text-[var(--subtle)] whitespace-nowrap">
+                      {label.label}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          <div className="flex gap-[3px]">
-            {/* Weekday ruler */}
-            <div className="mr-1 flex w-7 flex-col gap-[3px] pt-[1px]">
-              {["", "Mon", "", "Wed", "", "Fri", ""].map((d, i) => (
-                <span
-                  key={i}
-                  className="h-[11px] text-[0.6rem] leading-[11px] text-[var(--subtle)]"
-                >
-                  {d}
-                </span>
-              ))}
-            </div>
+          <div className="grid w-full gap-[2px] sm:gap-[3px]">
+            {Array.from({ length: 7 }).map((_, d) => (
+              <div
+                key={d}
+                className="grid w-full grid-cols-[min-content_repeat(53,1fr)] gap-[2px] sm:gap-[3px]"
+              >
+                {/* Weekday label */}
+                <div className="mr-1 flex w-7 items-center justify-end pr-1 text-[0.6rem] leading-none text-[var(--subtle)]">
+                  {d === 1 ? "Mon" : d === 3 ? "Wed" : d === 5 ? "Fri" : ""}
+                </div>
 
-            {weeks.map((column, w) => (
-              <div key={w} className="flex flex-col gap-[3px]">
-                {column.map((cell) =>
-                  cell.future ? (
-                    <span key={cell.ts} className="size-[11px]" />
-                  ) : (
+                {/* Week cells for this day */}
+                {weeks.map((column) => {
+                  const cell = column[d];
+                  if (cell.future) {
+                    return <span key={cell.ts} className="aspect-square w-full" />;
+                  }
+                  return (
                     <Tooltip key={cell.ts}>
                       <TooltipTrigger asChild>
                         <span
-                          className="size-[11px] rounded-[2px] ring-offset-0 transition-transform hover:scale-125 hover:ring-1 hover:ring-white/40"
+                          className="aspect-square w-full rounded-[2px] ring-offset-0 transition-transform hover:scale-125 hover:ring-1 hover:ring-white/40"
                           style={{ background: LEVEL_COLORS[levelFor(cell.count)] }}
                         />
                       </TooltipTrigger>
@@ -141,8 +146,8 @@ export function ContributionHeatmap({
                         </span>
                       </TooltipContent>
                     </Tooltip>
-                  ),
-                )}
+                  );
+                })}
               </div>
             ))}
           </div>

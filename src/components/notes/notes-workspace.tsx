@@ -10,7 +10,11 @@ import {
   toggleNotePinned,
   updateNote,
 } from "@/actions/notes";
-import { MarkdownEditor } from "@/components/notes/markdown-editor";
+import dynamic from "next/dynamic";
+const MarkdownEditor = dynamic(
+  () => import("@/components/notes/markdown-editor").then((mod) => mod.MarkdownEditor),
+  { ssr: false }
+);
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
