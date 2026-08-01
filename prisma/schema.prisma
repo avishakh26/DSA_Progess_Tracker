@@ -1,0 +1,188 @@
+// DSA Journey — Prisma schema
+// Datasource is SQLite for zero-setup local dev. The schema deliberately avoids
+// Postgres-only features (native arrays, @db.Text) so switching the provider to
+// "postgresql" later is a one-line change.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ── Auth ─────────────────────────────────────────────────────
+
+model User {
+  id           String  @id @default(cuid())
+  name         String?
+  email        String  @unique
+  image        String?
+  passwordHash String
+
+  // Settings
+  dailyGoal   Int    @default(3) // problems per day
+  handleCf    String? // Codeforces handle
+  handleLc    String? // LeetCode handle
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts     Account[]
+  sessions     Session[]
+  topics       Topic[]
+  problems     Problem[]
+  monthlyGoals MonthlyGoal[]
+  ratingNodes  RatingNode[]
+  notes        Note[]
+  activities   Activity[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ── Roadmap ──────────────────────────────────────────────────
+
+/// One sub-topic inside one of the 14 phases, scoped to a user.
+/// Phase titles/targets live in src/lib/roadmap-data.ts — only per-user
+/// progress is persisted here.
+model Topic {
+  id          String  @id @default(cuid())
+  userId      String
+  slug        String
+  title       String
+  phase       Int
+  description String?
+  /// Newline-separated "Label|https://url" pairs.
+  resources   String?
+  status      String  @default("PENDING") // DONE | PENDING | SKIP
+  progress    Int     @default(0) // 0-100
+  notes       String?
+  favorite    Boolean @default(false)
+  order       Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problems Problem[]
+
+  @@unique([userId, slug])
+  @@index([userId, phase])
+}
+
+model Problem {
+  id           String   @id @default(cuid())
+  userId       String
+  topicId      String
+  title        String
+  platform     String // CODEFORCES | LEETCODE | CODECHEF | ATCODER | HACKERRANK | GFG | OTHER
+  problemLink  String?
+  solutionLink String?
+  difficulty   String   @default("EASY") // EASY | MEDIUM | HARD
+  solvedDate   DateTime @default(now())
+  status       String   @default("SOLVED") // SOLVED | ATTEMPTED | REVISION
+  notes        String?
+  /// Comma-separated tag list (SQLite has no native array type).
+  tags         String   @default("")
+  favorite     Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([topicId])
+}
+
+model MonthlyGoal {
+  id          String  @id @default(cuid())
+  userId      String
+  month       Int // 1-6
+  title       String
+  focus       String
+  description String?
+  target      Int     @default(0) // target problem count
+  progress    Int     @default(0) // 0-100, user-adjustable
+  completed   Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, month])
+}
+
+/// A node on the Codeforces rating roadmap (800 → 1800+).
+model RatingNode {
+  id        String  @id @default(cuid())
+  userId    String
+  rating    Int
+  title     String
+  focus     String
+  /// Comma-separated skill list shown inside the node.
+  skills    String  @default("")
+  completed Boolean @default(false)
+  notes     String?
+  order     Int     @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, rating])
+}
+
+/// Free-standing note, not attached to a topic.
+model Note {
+  id      String  @id @default(cuid())
+  userId  String
+  title   String
+  content String  @default("")
+  pinned  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// One row per user per day — powers the contribution heatmap and streaks.
+model Activity {
+  id     String   @id @default(cuid())
+  userId String
+  /// Midnight UTC of the day being counted.
+  date   DateTime
+  count  Int      @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+}
