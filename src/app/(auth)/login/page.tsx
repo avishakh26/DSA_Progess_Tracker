@@ -14,6 +14,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [state, setState] = useState<AuthFormState>(undefined);
   const [pending, startTransition] = useTransition();
+  const redirecting = state?.success === true;
 
   useEffect(() => {
     if (state?.success) {
@@ -24,6 +25,7 @@ export default function LoginPage() {
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (pending || redirecting) return;
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
       try {
@@ -76,13 +78,13 @@ export default function LoginPage() {
           </p>
         )}
 
-        <Button type="submit" disabled={pending} className="mt-1">
-          {pending ? (
+        <Button type="submit" disabled={pending || redirecting} className="mt-1">
+          {pending || redirecting ? (
             <Loader2 className="animate-spin" suppressHydrationWarning />
           ) : (
             <LogIn suppressHydrationWarning />
           )}
-          Sign in
+          {redirecting ? "Signing in…" : "Sign in"}
         </Button>
       </form>
 
