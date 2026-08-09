@@ -14,7 +14,7 @@ import { unstable_isUnrecognizedActionError } from "next/navigation";
  * succeed — only a full reload fetches a bundle with a current one — so we
  * reload immediately instead of burning through retries on a doomed call.
  */
-export async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+export async function withRetry<T>(fn: () => Promise<T>, attempts = 6): Promise<T> {
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
       return await fn();
@@ -24,7 +24,10 @@ export async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<
         return new Promise<T>(() => {}); // reload is in flight; never resolve
       }
       if (attempt === attempts) throw err;
-      await new Promise((resolve) => setTimeout(resolve, 300 * attempt));
+      // Capped backoff: a cold dev compile can take several seconds, so the
+      // old 300ms/600ms/900ms window (1.8s total) gave up long before a slow
+      // recompile finished. This gives ~7s of headroom before surfacing an error.
+      await new Promise((resolve) => setTimeout(resolve, Math.min(400 * attempt, 2000)));
     }
   }
   throw new Error("unreachable");

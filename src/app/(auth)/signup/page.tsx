@@ -29,7 +29,8 @@ export default function SignupPage() {
     startTransition(async () => {
       try {
         setState(await withRetry(() => signupAction(undefined, formData)));
-      } catch {
+      } catch (err) {
+        console.error("signupAction failed after retries:", err);
         setState({ error: "Couldn't reach the server. Check your connection and try again." });
       }
     });

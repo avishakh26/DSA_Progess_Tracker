@@ -28,7 +28,8 @@ export default function LoginPage() {
     startTransition(async () => {
       try {
         setState(await withRetry(() => loginAction(undefined, formData)));
-      } catch {
+      } catch (err) {
+        console.error("loginAction failed after retries:", err);
         setState({ error: "Couldn't reach the server. Check your connection and try again." });
       }
     });
