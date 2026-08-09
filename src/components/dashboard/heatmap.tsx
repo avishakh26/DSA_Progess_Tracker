@@ -74,7 +74,7 @@ export function ContributionHeatmap({
       .reduce((sum, a) => sum + a.count, 0);
 
     return { weeks, monthLabels, total };
-  }, [activities]);
+  }, [activities, todayIso]);
 
   return (
     <div className="flex flex-col gap-3">

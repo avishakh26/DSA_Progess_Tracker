@@ -1,15 +1,38 @@
 "use client";
 
-import { useActionState } from "react";
+import { useEffect, useState, useTransition, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AlertCircle, LogIn, Loader2 } from "lucide-react";
-import { loginAction } from "./actions";
+import { loginAction, type AuthFormState } from "./actions";
+import { withRetry } from "@/lib/action-retry";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 
 export default function LoginPage() {
-  const [state, action, pending] = useActionState(loginAction, undefined);
+  const router = useRouter();
+  const [state, setState] = useState<AuthFormState>(undefined);
+  const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (state?.success) {
+      router.replace("/");
+      router.refresh();
+    }
+  }, [state, router]);
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    startTransition(async () => {
+      try {
+        setState(await withRetry(() => loginAction(undefined, formData)));
+      } catch {
+        setState({ error: "Couldn't reach the server. Check your connection and try again." });
+      }
+    });
+  }
 
   return (
     <Card className="w-full max-w-sm p-6">
@@ -18,7 +41,7 @@ export default function LoginPage() {
         Sign in to pick up where you left off.
       </p>
 
-      <form action={action} className="mt-6 flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -47,16 +70,16 @@ export default function LoginPage() {
 
         {state?.error && (
           <p className="flex items-center gap-2 rounded-lg border border-[var(--danger)]/30 bg-[var(--danger-soft)] px-3 py-2 text-xs text-rose-300">
-            <AlertCircle className="size-3.5 shrink-0" />
+            <AlertCircle className="size-3.5 shrink-0" suppressHydrationWarning />
             {state.error}
           </p>
         )}
 
         <Button type="submit" disabled={pending} className="mt-1">
           {pending ? (
-            <Loader2 className="animate-spin" />
+            <Loader2 className="animate-spin" suppressHydrationWarning />
           ) : (
-            <LogIn />
+            <LogIn suppressHydrationWarning />
           )}
           Sign in
         </Button>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ChevronsLeft,
@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { signOutAction } from "@/actions/auth";
+import { withRetry } from "@/lib/action-retry";
 import { NAV_ITEMS } from "@/lib/nav";
 import { usePersistedFlag } from "@/lib/use-client-state";
 import { cn } from "@/lib/utils";
@@ -45,11 +46,26 @@ export function AppShell({
   user: { name: string | null; email: string; image?: string | null };
   counts: ShellCounts;
 }) {
+  const router = useRouter();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = usePersistedFlag("dsa:sidebar-collapsed");
   const [isHovered, setIsHovered] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [signingOut, startSignOut] = useTransition();
+
+  const handleSignOut = () => {
+    startSignOut(async () => {
+      try {
+        await withRetry(() => signOutAction());
+      } catch {
+        // Best-effort: even if every retry drops, still send the user to
+        // /login — the session cookie is cleared server-side regardless.
+      }
+      router.replace("/login");
+      router.refresh();
+    });
+  };
 
   const [drawerRoute, setDrawerRoute] = useState(pathname);
   if (drawerRoute !== pathname) {
@@ -186,15 +202,15 @@ export function AppShell({
                   onSelect={(e) => e.preventDefault()}
                   className="p-0 text-rose-300 [&_svg]:text-rose-300"
                 >
-                  <form action={signOutAction} className="w-full">
-                    <button
-                      type="submit"
-                      className="flex w-full cursor-pointer items-center gap-2 px-2.5 py-1.5"
-                    >
-                      <LogOut className="size-4" />
-                      Sign out
-                    </button>
-                  </form>
+                  <button
+                    type="button"
+                    disabled={signingOut}
+                    onClick={handleSignOut}
+                    className="flex w-full cursor-pointer items-center gap-2 px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <LogOut className="size-4" />
+                    Sign out
+                  </button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -241,24 +257,42 @@ function SidebarBody({
       <div
         className={cn(
           "flex h-14 shrink-0 items-center border-b border-[var(--border)] px-3",
-          collapsed ? "justify-center" : "justify-between",
+          collapsed ? "justify-center" : "justify-start gap-2.5",
         )}
       >
         <Link href="/" className="flex items-center gap-2.5 overflow-hidden">
           <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[var(--primary)] shadow-[0_4px_16px_-4px_rgba(59,130,246,0.7)]">
-            <Code2 className="size-4 text-white" />
+            <Code2 className="size-4 text-white" suppressHydrationWarning />
           </span>
-          {!collapsed && (
-            <span className="truncate text-[0.95rem] font-semibold tracking-tight text-[var(--foreground)]">
-              DSA Journey
-            </span>
-          )}
+          <AnimatePresence initial={false}>
+            {!collapsed && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="whitespace-nowrap text-[0.95rem] font-semibold tracking-tight text-[var(--foreground)] overflow-hidden"
+              >
+                DSA Journey
+              </motion.span>
+            )}
+          </AnimatePresence>
         </Link>
-        {!collapsed && (
-          <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Collapse sidebar">
-            {toggleIcon ?? <ChevronsLeft />}
-          </Button>
-        )}
+        <AnimatePresence initial={false}>
+          {!collapsed && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="ml-auto"
+            >
+              <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Collapse sidebar">
+                {toggleIcon ?? <ChevronsLeft />}
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <nav className="no-scrollbar flex flex-1 flex-col gap-0.5 overflow-y-auto p-2.5">
@@ -273,7 +307,7 @@ function SidebarBody({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group relative flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
+                  "group relative flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors overflow-hidden",
                   collapsed && "justify-center px-0",
                   active
                     ? "bg-[var(--primary-soft)] text-[var(--primary)]"
@@ -288,12 +322,32 @@ function SidebarBody({
                   />
                 )}
                 <item.icon className="size-4 shrink-0" />
-                {!collapsed && <span className="truncate">{item.label}</span>}
-                {!collapsed && count > 0 && (
-                  <span className="ml-auto rounded-md bg-white/[0.08] px-1.5 py-0.5 text-[0.7rem] text-[var(--muted)]">
-                    {count}
-                  </span>
-                )}
+                <AnimatePresence initial={false}>
+                  {!collapsed && (
+                    <motion.span
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="whitespace-nowrap overflow-hidden truncate"
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+                <AnimatePresence initial={false}>
+                  {!collapsed && count > 0 && (
+                    <motion.span
+                      initial={{ opacity: 0, width: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, width: "auto", scale: 1 }}
+                      exit={{ opacity: 0, width: 0, scale: 0.8 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-auto rounded-md bg-white/[0.08] px-1.5 py-0.5 text-[0.7rem] text-[var(--muted)] whitespace-nowrap overflow-hidden"
+                    >
+                      {count}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </Link>
             );
 

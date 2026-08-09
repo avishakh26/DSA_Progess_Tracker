@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useSyncExternalStore } from "react";
 import { AlertTriangle, Loader2, RotateCcw, Save, ExternalLink, Moon, Sun, Monitor } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
@@ -220,10 +220,12 @@ export function SettingsForm({
 
 export function ThemeSettings() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   if (!mounted) return null;
 

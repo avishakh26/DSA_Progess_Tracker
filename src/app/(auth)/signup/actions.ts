@@ -37,11 +37,12 @@ export async function signupAction(
   await provisionUser(user.id);
 
   try {
-    await signIn("credentials", { email, password, redirectTo: "/" });
+    await signIn("credentials", { email, password, redirect: false });
   } catch (error) {
     if (error instanceof AuthError) {
       return { error: "Account created — please sign in." };
     }
     throw error;
   }
+  return { success: true };
 }

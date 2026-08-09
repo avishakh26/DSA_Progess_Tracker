@@ -1,15 +1,39 @@
 "use client";
 
-import { useActionState } from "react";
+import { useEffect, useState, useTransition, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AlertCircle, Loader2, UserPlus } from "lucide-react";
 import { signupAction } from "./actions";
+import type { AuthFormState } from "@/app/(auth)/login/actions";
+import { withRetry } from "@/lib/action-retry";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 
 export default function SignupPage() {
-  const [state, action, pending] = useActionState(signupAction, undefined);
+  const router = useRouter();
+  const [state, setState] = useState<AuthFormState>(undefined);
+  const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (state?.success) {
+      router.replace("/");
+      router.refresh();
+    }
+  }, [state, router]);
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    startTransition(async () => {
+      try {
+        setState(await withRetry(() => signupAction(undefined, formData)));
+      } catch {
+        setState({ error: "Couldn't reach the server. Check your connection and try again." });
+      }
+    });
+  }
 
   return (
     <Card className="w-full max-w-sm p-6">
@@ -18,7 +42,7 @@ export default function SignupPage() {
         We&apos;ll set up all 14 phases for you.
       </p>
 
-      <form action={action} className="mt-6 flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="name">Name</Label>
           <Input id="name" name="name" autoComplete="name" placeholder="Your name" />
