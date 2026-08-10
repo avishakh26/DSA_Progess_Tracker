@@ -1,11 +1,9 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { AuthError } from "next-auth";
-import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { provisionUser } from "@/lib/provision";
-import type { AuthFormState } from "@/app/(auth)/login/actions";
+import type { AuthFormState } from "@/lib/auth-types";
 
 export async function signupAction(
   _prev: AuthFormState,
@@ -36,13 +34,8 @@ export async function signupAction(
   // new account so the app is populated on first load.
   await provisionUser(user.id);
 
-  try {
-    await signIn("credentials", { email, password, redirect: false });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return { error: "Account created — please sign in." };
-    }
-    throw error;
-  }
+  // Signing in happens client-side after this action resolves (see
+  // signup/page.tsx) via next-auth/react's signIn(), not here — see the
+  // comment in login/page.tsx for why Server Actions shouldn't drive it.
   return { success: true };
 }

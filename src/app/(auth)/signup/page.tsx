@@ -3,9 +3,10 @@
 import { useEffect, useState, useTransition, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { AlertCircle, Loader2, UserPlus } from "lucide-react";
 import { signupAction } from "./actions";
-import type { AuthFormState } from "@/app/(auth)/login/actions";
+import type { AuthFormState } from "@/lib/auth-types";
 import { withRetry } from "@/lib/action-retry";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -28,9 +29,25 @@ export default function SignupPage() {
     e.preventDefault();
     if (pending || redirecting) return;
     const formData = new FormData(e.currentTarget);
+    const email = String(formData.get("email") ?? "");
+    const password = String(formData.get("password") ?? "");
+
     startTransition(async () => {
       try {
-        setState(await withRetry(() => signupAction(undefined, formData)));
+        const created = await withRetry(() => signupAction(undefined, formData));
+        if (created?.error) {
+          setState(created);
+          return;
+        }
+        // Account exists now — sign in client-side via next-auth/react so the
+        // credential check goes straight to the route handler instead of
+        // through a (dev-flaky) Server Action. See login/page.tsx.
+        const result = await signIn("credentials", { email, password, redirect: false });
+        if (result?.error) {
+          setState({ error: "Account created — please sign in." });
+        } else {
+          setState({ success: true });
+        }
       } catch (err) {
         console.error("signupAction failed after retries:", err);
         setState({ error: "Couldn't reach the server. Check your connection and try again." });

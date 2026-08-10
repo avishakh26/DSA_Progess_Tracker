@@ -3,9 +3,9 @@
 import { useEffect, useState, useTransition, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { AlertCircle, LogIn, Loader2 } from "lucide-react";
-import { loginAction, type AuthFormState } from "./actions";
-import { withRetry } from "@/lib/action-retry";
+import type { AuthFormState } from "@/lib/auth-types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
@@ -27,11 +27,29 @@ export default function LoginPage() {
     e.preventDefault();
     if (pending || redirecting) return;
     const formData = new FormData(e.currentTarget);
+    const email = String(formData.get("email") ?? "");
+    const password = String(formData.get("password") ?? "");
+
     startTransition(async () => {
+      // Signs in via next-auth/react's client signIn(), which posts straight
+      // to the /api/auth/callback/credentials route handler instead of going
+      // through a Server Action. Next's dev server was intermittently
+      // resetting/rejecting Server Action calls on this machine (mid-recompile
+      // ECONNRESET, stale action ids after HMR) — a plain fetch to a stable
+      // route handler sidesteps that failure mode entirely.
       try {
-        setState(await withRetry(() => loginAction(undefined, formData)));
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
+        if (result?.error) {
+          setState({ error: "Incorrect email or password." });
+        } else {
+          setState({ success: true });
+        }
       } catch (err) {
-        console.error("loginAction failed after retries:", err);
+        console.error("signIn failed:", err);
         setState({ error: "Couldn't reach the server. Check your connection and try again." });
       }
     });

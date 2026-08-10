@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
-    "dev:turbo": "next dev",
-    "dev:fast": "next dev --webpack --disable-source-maps",
+    "dev": "set NODE_OPTIONS=--max-http-header-size=65536 && next dev --webpack",
+    "dev:turbo": "set NODE_OPTIONS=--max-http-header-size=65536 && next dev",
+    "dev:fast": "set NODE_OPTIONS=--max-http-header-size=65536 && next dev --webpack --disable-source-maps",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
